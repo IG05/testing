@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+boto3
+openai
+transformers
+torch
+sentence-transformers
+librosa
+firebase-admin
+tqdm
+faiss-cpu
+Pillow
