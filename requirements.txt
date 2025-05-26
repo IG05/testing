@@ -10,3 +10,8 @@ firebase-admin
 tqdm
 faiss-cpu
 Pillow
+dotenv
+uuid
+numpy
+requests
+pydantic
