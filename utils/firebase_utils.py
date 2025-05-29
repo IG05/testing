@@ -24,10 +24,9 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-def store_video_metadata(data):
-    doc_id = uuid.uuid4().hex
-    db.collection("videos").document(doc_id).set(data)
-    return doc_id
+def store_video_metadata(data,video_id):
+    db.collection("videos").document(video_id).set(data)
+    return video_id
 
 def get_all_video_embeddings():
     video_docs = db.collection("videos").stream()

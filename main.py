@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import uvicorn
 import uuid
 import os
+import traceback
 from utils.ffmpeg_utils import extract_metadata, extract_thumbnail, download_video
 from utils.transcription import transcribe_audio
 from utils.summarizer import summarize_text
@@ -16,9 +17,20 @@ from utils.title_generator import generate_title
 from utils.s3_utils import upload_to_s3, generate_s3_url
 from datetime import datetime
 from utils.similar_videos import update_similar_videos
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000",
+                   "https://watchai-ten.vercel.app"],  # Change to your frontend's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 GCS_BUCKET_NAME ="watchai-bucket"
 
@@ -102,15 +114,17 @@ async def process_video_api(req: VideoURLRequest):
             "combinedEmbedding": combined_emb
         }
 
-        doc_id = store_video_metadata(payload)
+        doc_id = store_video_metadata(payload,video_id)
         print(f"[✓] Stored video metadata in Firestore with ID: {doc_id}")
 
         #Faiss Index
         update_similar_videos()
         
-        return doc_id,payload
+        return {"videoId": doc_id, "metadata": payload}
 
     except Exception as e:
+        print("Exception occurred:", e)
+        traceback.print_exc()  # This prints the full traceback to your console/logs
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if os.path.exists(local_video_path): os.remove(local_video_path)

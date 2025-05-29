@@ -10,7 +10,7 @@ openai_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_key)
 
 # Valid news subcategories
-CATEGORIES = ["politics", "sports", "technology", "entertainment", "business", "health", "science", "general", "war"]
+CATEGORIES = ["politics", "sports", "technology", "entertainment", "finance", "health", "science", "crime", "world", "weather", "education"]
 
 def predict_subcategory(transcript: str, summary: str, title: str) -> str:
     # Build the prompt

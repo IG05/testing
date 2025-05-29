@@ -3,3 +3,8 @@ firebase-credentials.json
 .env
 
 venv/
+
+Dockerfile
+
+
+firebase-credentials(not).json

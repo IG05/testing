@@ -3,7 +3,7 @@ import faiss
 from firebase_admin import firestore
 from tqdm import tqdm
 
-TOP_K = 3  # Number of similar videos to cache per video
+TOP_K = 10 # Number of similar videos to cache per video
 db = firestore.client()
 
 

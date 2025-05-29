@@ -17,7 +17,7 @@ RUN pip install -r requirements.txt
 
 RUN python -c "from transformers import CLIPProcessor, pipeline; \
     CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32'); \
-    pipeline('automatic-speech-recognition', model='openai/whisper-small.en')"
+    pipeline('automatic-speech-recognition', model='openai/whisper-small')"
 
 
 # Expose port for FastAPI
