@@ -5,11 +5,11 @@ from transformers import pipeline
 import shutil
 import uuid
 
-# Load Whisper ASR model (English-only small)
+# Load Whisper ASR model
 asr = pipeline(
     "automatic-speech-recognition",
-    model="openai/whisper-small.en",
-    return_timestamps=True
+    model="openai/whisper-small",  # multilingual small model
+    return_timestamps=True,
 )
 
 def extract_audio_from_video(video_path, audio_path):

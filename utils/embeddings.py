@@ -19,8 +19,8 @@ def extract_visual_embedding(image_path):
 def extract_text_embedding(text):
     return text_model.encode(text).tolist()
 
-def extract_audio_embedding(video_path):
-    y, sr = librosa.load(video_path, sr=None)
+def extract_audio_embedding(audio_path):
+    y, sr = librosa.load(audio_path, sr=None)
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
     mfcc_mean = np.mean(mfcc, axis=1)
     return mfcc_mean.tolist()

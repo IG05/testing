@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from pydantic import BaseModel
 import uvicorn
 import uuid
@@ -20,12 +20,16 @@ from utils.similar_videos import update_similar_videos
 
 app = FastAPI()
 
-class VideoURLRequest(BaseModel):
-    videoUrl: str
+GCS_BUCKET_NAME ="watchai-bucket"
 
 @app.get("/")
 async def root():
-    return {"message": "API is running. Use POST /process-video to process videos."}
+    return {"message": "Hello from Render", "port": os.getenv("PORT")}
+
+class VideoURLRequest(BaseModel):
+    videoUrl: str
+
+
 
 
 @app.post("/process-video")
@@ -39,16 +43,20 @@ async def process_video_api(req: VideoURLRequest):
         download_video(video_url, local_video_path)
 
         # Metadata
+        
         meta = extract_metadata(local_video_path)
+        print("Extracted Metadata")
 
         # Thumbnail
         thumbnail_path = extract_thumbnail(local_video_path)
         thumbnail_s3_key = f"thumbnails/{video_id}.jpg"
         upload_to_s3(thumbnail_path, thumbnail_s3_key)
         thumbnail_url = generate_s3_url(thumbnail_s3_key)
+        print("Generated Thumbnail URL")
 
         # Transcript
         transcript, audio_path = transcribe_audio(local_video_path)
+        print("Generated Transcript")
 
         # Summary
         summary = summarize_text(transcript)
@@ -56,6 +64,7 @@ async def process_video_api(req: VideoURLRequest):
 
         # Title
         title = generate_title(transcript)
+        print("Title Made")
 
         # Subcategory
         subcategory = predict_subcategory(transcript, summary, title)
@@ -64,12 +73,14 @@ async def process_video_api(req: VideoURLRequest):
         audio_s3_key = f"audio/{video_id}.wav"
         upload_to_s3(audio_path, audio_s3_key)
         audio_url = generate_s3_url(audio_s3_key)
+        print("Audio Done")
 
         # Embeddings
         visual_emb = extract_visual_embedding(thumbnail_path)
-        audio_emb = extract_audio_embedding(local_video_path)
+        audio_emb = extract_audio_embedding(audio_path)
         text_emb = extract_text_embedding(transcript)
         combined_emb = combine_embeddings(visual_emb, audio_emb, text_emb)
+        print("Embeddings Created")
 
 
         # Upload metadata
@@ -97,7 +108,7 @@ async def process_video_api(req: VideoURLRequest):
         #Faiss Index
         update_similar_videos()
         
-        return {"status": "success", "videoId": doc_id}
+        return doc_id,payload
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -106,5 +117,14 @@ async def process_video_api(req: VideoURLRequest):
         if os.path.exists(thumbnail_path): os.remove(thumbnail_path)
         if os.path.exists(audio_path): os.remove(audio_path)
 
+@app.get("/process-video")
+async def process_video_get(videoUrl: str = Query(..., alias="videoUrl")):
+    return await process_video_api(VideoURLRequest(videoUrl=videoUrl))
+
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    import os
+    import uvicorn
+    port = int(os.environ.get("PORT", 7000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
+

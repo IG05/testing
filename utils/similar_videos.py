@@ -18,7 +18,7 @@ def update_similar_videos():
 
     for doc in tqdm(video_docs):
         data = doc.to_dict()
-        emb = data.get("embeddings", {}).get("combined")
+        emb = data.get("combinedEmbedding")
         if isinstance(emb, list) and emb:
             embeddings.append(np.array(emb, dtype=np.float32))
             video_ids.append(doc.id)
