@@ -38,8 +38,8 @@ Machine learning pipeline that processes videos using AI models to extract insig
 
 ```bash
 # Clone and setup
-git clone https://github.com/IG05/testing.git
-cd testing
+git clone https://github.com/IG05/watchAI-backend-pipeline.git
+cd watchAI-backend-pipeline
 pip install -r requirements.txt
 ```
 
